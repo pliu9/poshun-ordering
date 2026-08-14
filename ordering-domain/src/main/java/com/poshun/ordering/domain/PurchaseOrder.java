@@ -12,12 +12,14 @@ public final class PurchaseOrder {
     private final Currency currency;
     private final Instant createdAt;
     private final List<OrderLine> lines = new ArrayList<>();
+    private OrderStatus status;
 
     private PurchaseOrder(OrderId id, CustomerId customerId, Currency currency, Instant createdAt) {
         this.id = Objects.requireNonNull(id);
         this.customerId = Objects.requireNonNull(customerId);
         this.currency = Objects.requireNonNull(currency);
         this.createdAt = Objects.requireNonNull(createdAt);
+        this.status = OrderStatus.DRAFT;
     }
 
     public static PurchaseOrder create(OrderId id, CustomerId customerId, Currency currency, Instant createdAt) {
@@ -40,9 +42,16 @@ public final class PurchaseOrder {
                 .reduce(Money.zero(currency), Money::add);
     }
 
+    public void submit() {
+        if (lines.isEmpty()) {
+            throw new EmptyOrderCannotBeSubmitted();
+        }
+        status = OrderStatus.SUBMITTED;
+    }
+
     public OrderId id() { return id; }
     public CustomerId customerId() { return customerId; }
     public Instant createdAt() { return createdAt; }
+    public OrderStatus status() { return status; }
     public List<OrderLine> lines() { return List.copyOf(lines); }
 }
-

@@ -40,6 +40,25 @@ class PurchaseOrderTest {
                 });
     }
 
+    @Test
+    void submitsAnOrderWithAtLeastOneLine() {
+        var order = newOrder();
+        order.addLine(productId(), new Quantity(5), new Money(new BigDecimal("12.50"), USD), new Quantity(5));
+
+        order.submit();
+
+        assertThat(order.status()).isEqualTo(OrderStatus.SUBMITTED);
+    }
+
+    @Test
+    void rejectsSubmittingAnEmptyOrder() {
+        var order = newOrder();
+
+        assertThatThrownBy(order::submit)
+                .isInstanceOf(EmptyOrderCannotBeSubmitted.class)
+                .hasMessage("an empty order cannot be submitted");
+    }
+
     private PurchaseOrder newOrder() {
         return PurchaseOrder.create(
                 OrderId.newId(),
@@ -52,4 +71,3 @@ class PurchaseOrderTest {
         return new ProductId(UUID.randomUUID());
     }
 }
-
