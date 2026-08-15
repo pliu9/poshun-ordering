@@ -16,7 +16,6 @@ class PurchaseOrderTest {
     @Test
     void calculatesTheOrderTotal() {
         var order = newOrder();
-
         order.addLine(productId(), new Quantity(10), new Money(new BigDecimal("12.50"), USD), new Quantity(5));
         order.addLine(productId(), new Quantity(2), new Money(new BigDecimal("8.00"), USD), new Quantity(1));
 
@@ -59,6 +58,28 @@ class PurchaseOrderTest {
                 .hasMessage("an empty order cannot be submitted");
     }
 
+    @Test
+    void rejectsAddingLineAfterSubmission() {
+        var order = newOrder();
+        order.addLine(productId(), new Quantity(5), new Money(new BigDecimal("12.50"), USD), new Quantity(5));
+        order.submit();
+
+        assertThatThrownBy(() -> order.addLine(
+                productId(), new Quantity(5), new Money(new BigDecimal("12.50"), USD), new Quantity(5)))
+                .isInstanceOf(IllegalStateException.class).hasMessage("only draft status can be modified.");
+    }
+
+    @Test
+    void NoSubmittingAnOrderTwice(){
+        var order = newOrder();
+        order.addLine(productId(), new Quantity(5), new Money(new BigDecimal("12.50"), USD), new Quantity(5));
+        order.submit();
+
+        assertThatThrownBy(order::submit)
+                .isInstanceOf(IllegalStateException.class).hasMessage("only draft status can be modified.");
+
+    }
+
     private PurchaseOrder newOrder() {
         return PurchaseOrder.create(
                 OrderId.newId(),
@@ -70,4 +91,5 @@ class PurchaseOrderTest {
     private ProductId productId() {
         return new ProductId(UUID.randomUUID());
     }
+
 }

@@ -12,7 +12,7 @@ public final class PurchaseOrder {
     private final Currency currency;
     private final Instant createdAt;
     private final List<OrderLine> lines = new ArrayList<>();
-    private OrderStatus status;
+    private OrderStatus status; 
 
     private PurchaseOrder(OrderId id, CustomerId customerId, Currency currency, Instant createdAt) {
         this.id = Objects.requireNonNull(id);
@@ -27,6 +27,9 @@ public final class PurchaseOrder {
     }
 
     public void addLine(ProductId productId, Quantity quantity, Money unitPrice, Quantity minimumOrderQuantity) {
+
+        ensureDraft();
+
         if (quantity.value() < minimumOrderQuantity.value()) {
             throw new MinimumOrderQuantityNotMet(productId, minimumOrderQuantity, quantity);
         }
@@ -43,10 +46,19 @@ public final class PurchaseOrder {
     }
 
     public void submit() {
+
+        ensureDraft();
+
         if (lines.isEmpty()) {
             throw new EmptyOrderCannotBeSubmitted();
         }
         status = OrderStatus.SUBMITTED;
+    }
+
+    private void ensureDraft(){
+        if (status != OrderStatus.DRAFT){
+            throw new IllegalStateException("only draft status can be modified.");
+        }
     }
 
     public OrderId id() { return id; }
