@@ -13,6 +13,7 @@
 
     <modules>
         <module>ordering-domain</module>
+        <module>ordering-application</module>
     </modules>
 
     <properties>
