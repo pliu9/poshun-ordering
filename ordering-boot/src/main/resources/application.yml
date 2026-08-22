@@ -1,0 +1,22 @@
+spring:
+  application:
+    name: poshun-ordering
+  datasource:
+    url: ${DB_URL:jdbc:postgresql://localhost:5432/poshun_ordering}
+    username: ${DB_USERNAME:poshun_app}
+    password: ${DB_PASSWORD}
+  jpa:
+    open-in-view: false
+    hibernate:
+      ddl-auto: validate
+  flyway:
+    enabled: true
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health
+  endpoint:
+    health:
+      show-details: when-authorized
